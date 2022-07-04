@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CEEC-GPS CAR</title>
+    <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+</head>
+<body>
+    <div  id="map" style="width: 600px; height: 400px;"></div>
+</body>
+<script>
+    // config
+    let lat = 10.762622;
+    let long = 106.660172;
+	let map = L.map('map').setView([lat, long], 13);
+	let tiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+		maxZoom: 20,
+		attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+	}).addTo(map);
+    map.setZoom(19);
+    // config end
+    // getdata
+    const dataLatlng = [
+        {
+            lat: 10.762622, 
+            lng: 106.660172,
+            time: "15p" 
+        },
+        {
+            lat: 10.761926, 
+            lng: 106.660418,
+            time: "15p" 
+        },        {
+            lat: 10.762163, 
+            lng: 106.660796,
+            time: "15p" 
+        },
+    ]
+    // start render
+    // travel path
+    let pointList = [];
+    dataLatlng.map((data) => pointList.push(new L.LatLng(data.lat,data.lng)))
+    let travelPath = new L.Polyline(pointList, {
+        color: 'green',
+        weight: 10,
+        opacity: 1,
+        smoothFactor: 1
+    }).addTo(map);
+
+    // circle at check point
+    pointList.map((data,index) => {
+        let circle = L.circle([data.lat, data.lng], {
+            color: 'green',
+            fillColor: 'green',
+            fillOpacity: 0.5,
+            radius: 10
+        }).addTo(map).bindPopup(dataLatlng[index].time);
+    })
+    // car icon
+    let carIcon = L.icon({
+        iconUrl: "images/car.png",
+        iconSize: [70, 70]
+    })
+    let marker = L.marker(
+        [pointList[pointList.length-1].lat, pointList[pointList.length-1].lng],
+        {
+            icon: carIcon
+        }
+    ).addTo(map).bindPopup(dataLatlng[dataLatlng.length- 1].time);
+    // when click
+	function onMapClick(e) {	
+        let popup = L.popup();
+		popup
+			.setLatLng(e.latlng)
+			.setContent(e.latlng.toString())
+			.openOn(map);
+	}
+	map.on('click', onMapClick);
+
+
+
+
+
+
+	// 	.bindPopup('<b>Hello world!</b><br />I am a popup.').openPopup();
+
+	// let circle = L.circle([10.762163, 106.660796], {
+	// 	color: 'red',
+	// 	fillColor: '#f03',
+	// 	fillOpacity: 0.5,
+	// 	radius: 500
+	// }).addTo(map).bindPopup('I am a circle.');
+
+	// let polygon = L.polygon([
+	// 	[51.509, -0.08],
+	// 	[51.503, -0.06],
+	// 	[51.51, -0.047]
+	// ]).addTo(map).bindPopup('I am a polygon.');
+</script>
+
+
+</html>
