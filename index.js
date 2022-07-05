@@ -48,9 +48,9 @@ async function listDatabases(){
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
-
-const server = app.listen(8081, function () {
-    const host = server.address().address
-    const port = server.address().port
-    console.log("Ung dung Node.js dang lang nghe tai dia chi: http://%s:%s", host, port)
+app.get('/images/car.png', (req, res) => {
+    res.sendFile(__dirname + '/public/images/car.png');
+});
+const server = app.listen(3000, function () {
+    console.log("Ung dung Node.js dang lang nghe tai dia chi: localhost:3000")
 })
