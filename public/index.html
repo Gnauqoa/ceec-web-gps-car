@@ -13,15 +13,13 @@
     <div id="map" style="width: 600px; height: 400px;"></div>
 </body>
 <script src="/socket.io/socket.io.js"></script>
-
+<script src="./js/main.js"></script>
 <script>
-// const socket = io();
-// console.log("start");
-
-// socket.on('message' , message => {
-//     console.log(message);
-// })
     // config
+    const socket = io();
+    console.log("start");
+
+
     let lat = 10.762622;
     let long = 106.660172;
 	let map = L.map('map').setView([lat, long], 13);
@@ -32,7 +30,7 @@
     map.setZoom(19);
     // config end
     // getdata
-    const dataLatlng = [
+    const dataLatLng = [
         {
             lat: 10.762622, 
             lng: 106.660172,
@@ -42,44 +40,61 @@
             lat: 10.761926, 
             lng: 106.660418,
             time: "15p" 
-        },        {
+        },        
+        {
             lat: 10.762163, 
             lng: 106.660796,
             time: "15p" 
         },
-    ]
+    ];
+    socket.on("dataLatLng", data => {
+        console.log("getdata");
+        console.log(data);
+        renderTravelPath(data);
+    });
     // start render
     // travel path
-    let pointList = [];
-    dataLatlng.map((data) => pointList.push(new L.LatLng(data.lat,data.lng)))
-    let travelPath = new L.Polyline(pointList, {
-        color: 'green',
-        weight: 10,
-        opacity: 1,
-        smoothFactor: 1
-    }).addTo(map);
-
-    // circle at check point
-    pointList.map((data,index) => {
-        let circle = L.circle([data.lat, data.lng], {
-            color: 'green',
-            fillColor: 'green',
-            fillOpacity: 0.5,
-            radius: 5
-        }).addTo(map).bindPopup(dataLatlng[index].time);
-    })
-    // car icon
     let carIcon = L.icon({
         iconUrl: "images/car.png",
         iconSize: [70, 70]
     })
-    let marker = L.marker(
-        [pointList[pointList.length-1].lat, pointList[pointList.length-1].lng],
-        {
-            icon: carIcon
+    let carMarker = undefined;
+    let travelPath = undefined;
+    let circleList = [];
+    function renderTravelPath(dataTravelPath){
+        if(carMarker !== undefined){
+           map.removeLayer(carMarker);
+            map.removeLayer(travelPath);
+            circleList.map((data) => map.removeLayer(data));
         }
-    ).addTo(map).bindPopup(dataLatlng[dataLatlng.length- 1].time);
-    // when click
+        let pointList = [];
+        dataTravelPath.map((data) => pointList.push(new L.LatLng(data.lat,data.lng)))
+        travelPath = new L.Polyline(pointList, {
+            color: 'green',
+            weight: 10,
+            opacity: 1,
+            smoothFactor: 1
+        }).addTo(map);
+
+        // circle at check point
+        pointList.map((data,index) => {
+            let circle = L.circle([data.lat, data.lng], {
+                color: 'green',
+                fillColor: 'green',
+                fillOpacity: 0.5,
+                radius: 5
+            }).addTo(map).bindPopup(dataTravelPath[index].time);
+            circleList.push(circle);
+        })
+        // car icon
+        carMarker = L.marker(
+            [pointList[pointList.length-1].lat, pointList[pointList.length-1].lng],
+            {
+                icon: carIcon
+            }
+        ).addTo(map).bindPopup(dataTravelPath[dataTravelPath.length- 1].time);
+    }
+    renderTravelPath(dataLatLng);
 	function onMapClick(e) {	
         let popup = L.popup();
 		popup
